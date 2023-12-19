@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang=en>
+
+<head>
+    <meta charset=utf-8 />
+    <meta name=viewport content=width=device-width,initial-scale=1 />
+    <title>
+        Fares Kouki
+    </title>
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0px;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav {
+            position: absolute;
+            font-size: 32px;
+            top: 20px;
+            background-color: rgb(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+
+        #toggleButton {
+            position: absolute;
+            bottom: 20px;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 30px;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            align-items: center;
+            text-align: center;
+        }
+
+        nav ul li {
+            display: block;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border-bottom: solid;
+
+        }
+
+        nav ul li:hover {
+            transform: scale(1.1);
+
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .submenu {
+            display: none;
+            position: absolute;
+            list-style-type: none;
+            background-color: rgb(255, 255, 255, 0.2);
+        }
+
+        #projets:hover .submenu {
+            display: block;
+        }
+
+        .theme-switch-wrapper {
+            text-align: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 26px;
+        }
+
+        input:checked+.slider {
+            background-color: #66bb6a;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        #loadingDiv {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            pointer-events: all;
+        }
+
+        #loadingDiv p {
+            margin: 0;
+            font-size: 2em;
+            color: white;
+        }
+
+        #loadingBarContainer {
+            width: 50%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: auto;
+            top: 20px;
+            position: relative;
+        }
+
+        #loadingBar {
+            z-index: 3;
+            height: 100%;
+            width: 0%;
+            background-color: blue;
+            border-radius: 10px;
+            transition: width 0.05s ease-in-out;
+        }
+
+        #loadingButton {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            z-index: 3;
+            pointer-events: auto;
+            border-radius: 50%;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+
+        .loading-part {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            top: 0;
+            transition: transform 1s ease-in-out;
+        }
+
+        .left-part {
+            z-index: -2;
+            left: 0;
+            background-color: rgba(0, 0, 0, 1);
+        }
+
+        .right-part {
+            z-index: -2;
+            right: 0;
+            background-color: rgba(0, 0, 0, 1);
+        }
+
+        .slide-out {
+            transform: translateX(-100%);
+        }
+
+        .slide-in {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loadingDiv">
+        <div class="loading-part left-part"></div>
+        <div class="loading-part right-part"></div>
+        <div>
+            <p id="loadingText">Chargement... 0%</p>
+            <div id="loadingBarContainer">
+                <div id="loadingBar"></div>
+            </div>
+        </div>
+
+        <button id="loadingButton" onclick="hideLoading()">△</button>
+    </div>
+    <nav>
+        <ul>
+            <li id="projets">Mes Projets
+                <ul class="submenu">
+                    <li id="vuejs">Vue.js</li>
+                    <li id="wordpress">Wordpress</li>
+                    <li id="babylon">Babylon</li>
+                </ul>
+            </li>
+            <li id="reseaux">Mes Réseaux</li>
+        </ul>
+    </nav>
+
+    <div id="toggleButton" class="theme-switch-wrapper">
+        <p>DARK MODE</p>
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox" />
+            <div class="slider round"></div>
+        </label>
+    </div>
+    <script type=module src=bundle.js></script>
+    <script>
+
+        let loadingPercentage = 0;
+        const loadingText = document.getElementById('loadingText');
+        const loadingBar = document.getElementById('loadingBar');
+        const loadingButton = document.getElementById('loadingButton');
+
+        const loadingInterval = setInterval(() => {
+            loadingPercentage++;
+            loadingText.innerText = `Chargement... ${loadingPercentage}%`;
+            loadingBar.style.width = `${loadingPercentage}%`;
+            if (loadingPercentage >= 100) {
+                clearInterval(loadingInterval);
+                loadingText.style.display = 'none';
+                loadingBar.style.display = 'none';
+                loadingButton.style.display = 'block';
+            }
+        }, 50);
+
+
+        function hideLoading() {
+            const leftPart = document.querySelector('.left-part');
+            const rightPart = document.querySelector('.right-part');
+            leftPart.classList.add('slide-out');
+            rightPart.classList.add('slide-in');
+            loadingButton.classList.add('fade-out');
+
+            setTimeout(() => {
+                document.dispatchEvent(new CustomEvent('loadingCompleted'));
+                document.getElementById('loadingDiv').style.display = 'none';
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
